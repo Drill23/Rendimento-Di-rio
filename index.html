@@ -5,187 +5,127 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#1a1a2e">
-    <title>Rendimento Aves Pro</title>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+    <meta name="theme-color" content="#121212">
+    <title>Calc. Rendimento Aves</title>
+    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' style='background:%23121212'%3E%3Cpath d='M448 96L288 256 192 160 32 320' fill='none' stroke='%2300f2ff' stroke-width='32' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
         :root {
-            --bg-color: #1a1a2e;
-            --card-bg: rgba(22, 33, 62, 0.9);
-            --accent: #e94560;
+            --bg: #121212;
+            --card: #1e1e1e;
+            --input-bg: #2c2c2c;
             --text: #ffffff;
-            --green: #0f3460;
-            --success: #4cc9f0;
-            --danger: #ff4757;
+            --text-muted: #a0a0a0;
+            --accent: #00f2ff;
+            --success: #00e676; /* Verde Neon */
+            --danger: #ff1744;  /* Vermelho Neon */
         }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background-color: var(--bg-color);
-            color: var(--text);
-            font-family: 'Roboto', sans-serif;
-            margin: 0;
-            padding: 20px;
+            background-color: var(--bg); color: var(--text);
+            font-family: 'Inter', sans-serif;
+            margin: 0; padding: 20px;
             padding-top: env(safe-area-inset-top);
-            padding-bottom: 100px;
-            box-sizing: border-box;
+            padding-bottom: 50px;
         }
 
         h1 {
-            text-align: center;
-            font-size: 1.5rem;
-            margin-bottom: 20px;
-            color: var(--success);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            text-align: center; font-size: 1.4rem; margin-bottom: 20px;
+            color: var(--accent); text-transform: uppercase; letter-spacing: 1px;
         }
 
-        /* CARD ESTILO VIDRO */
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.05);
+        /* CARD DE CONTROLE GERAL */
+        .control-panel {
+            background: var(--card); padding: 20px; border-radius: 16px;
+            border: 1px solid #333; margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            position: sticky; top: 10px; z-index: 100; /* Fica fixo no topo ao rolar */
         }
 
-        /* INPUT DE ARQUIVO */
-        .file-upload {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 30px;
-            border: 2px dashed var(--accent);
-            border-radius: 15px;
-            background: rgba(233, 69, 96, 0.1);
-            cursor: pointer;
+        .input-label {
+            font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;
+            letter-spacing: 0.5px; margin-bottom: 8px; display: block;
+        }
+
+        .big-input {
+            width: 100%; background: var(--input-bg); border: 2px solid #333;
+            color: var(--accent); font-size: 1.8rem; font-weight: 700;
+            padding: 10px; border-radius: 10px; text-align: center; outline: none;
             transition: 0.3s;
         }
-        .file-upload:active { transform: scale(0.98); }
-        .file-upload p { margin: 10px 0 0; font-weight: bold; color: var(--accent); }
-        input[type="file"] { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .big-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 242, 255, 0.2); }
 
-        /* INPUTS NUMÉRICOS */
-        .input-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; color: #a0a0b0; margin-bottom: 5px; }
-        input[type="number"] {
-            width: 100%;
-            padding: 12px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1.1rem;
-            outline: none;
-            box-sizing: border-box;
-        }
-        input[type="number"]:focus { border-color: var(--success); }
+        /* LISTA DE ITENS */
+        .items-grid { display: flex; flex-direction: column; gap: 15px; }
 
-        /* TABELA DE ITENS */
         .item-card {
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 5px solid #555;
+            background: var(--card); border-radius: 12px; padding: 15px;
+            border-left: 5px solid #444; transition: 0.3s;
         }
-        .item-card.positive { border-left-color: var(--success); }
-        .item-card.negative { border-left-color: var(--danger); }
+        .item-card.profit { border-left-color: var(--success); background: linear-gradient(90deg, rgba(0,230,118,0.05) 0%, var(--card) 100%); }
+        .item-card.loss { border-left-color: var(--danger); background: linear-gradient(90deg, rgba(255,23,68,0.05) 0%, var(--card) 100%); }
 
         .item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;
         }
-        .item-name { font-weight: bold; font-size: 1.1rem; }
-        .item-meta { font-size: 0.8rem; color: #a0a0b0; background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
-
-        .grid-values {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
+        .item-title { font-size: 1.1rem; font-weight: 700; }
         
-        .result-row {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
+        /* INPUTS DO ITEM */
+        .inputs-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .small-input-group label { font-size: 0.7rem; color: var(--text-muted); display: block; margin-bottom: 4px; }
+        .small-input {
+            width: 100%; background: var(--input-bg); border: 1px solid #333;
+            color: #fff; padding: 8px; border-radius: 6px; font-size: 1rem; text-align: center;
         }
-        
-        .result-box { text-align: right; }
-        .result-val { font-size: 1.3rem; font-weight: bold; }
-        .text-red { color: var(--danger); }
-        .text-blue { color: var(--success); }
-        .cx-count { font-size: 0.9rem; color: #a0a0b0; margin-top: 2px; }
+        .small-input:focus { border-color: #666; outline: none; }
 
-        /* BOTÃO RESET */
+        /* RESULTADOS */
+        .results-area {
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .result-block { text-align: right; }
+        .res-label { font-size: 0.75rem; color: var(--text-muted); }
+        .res-value { font-size: 1.2rem; font-weight: 700; }
+        
+        .val-green { color: var(--success); }
+        .val-red { color: var(--danger); }
+
+        /* CAIXAS */
+        .box-badge {
+            background: #333; color: #fff; padding: 4px 8px;
+            border-radius: 4px; font-size: 0.8rem; margin-top: 5px; display: inline-block;
+        }
+
         .btn-reset {
-            width: 100%; padding: 15px; background: transparent; border: 1px solid #555;
-            color: #777; border-radius: 10px; margin-top: 20px; font-weight: bold;
+            margin-top: 30px; width: 100%; padding: 15px;
+            background: transparent; border: 1px solid #444; color: #666;
+            border-radius: 8px; cursor: pointer;
         }
-        
-        /* Loading Overlay */
-        #loading {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8); z-index: 999;
-            display: none; justify-content: center; align-items: center; flex-direction: column;
-        }
-        .spinner {
-            width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3);
-            border-radius: 50%; border-top-color: var(--success);
-            animation: spin 1s ease-in-out infinite; margin-bottom: 15px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
     </style>
 </head>
 <body>
 
-    <div id="loading">
-        <div class="spinner"></div>
-        <div style="color:white;">Lendo PDF...</div>
+    <h1>Calculadora de Rendimento</h1>
+
+    <div class="control-panel">
+        <label class="input-label">PESO TOTAL DE ABATE (KG) DO DIA</label>
+        <input type="number" id="total-weight" class="big-input" placeholder="00000" inputmode="numeric">
     </div>
 
-    <h1>Rendimento Aves</h1>
+    <div id="app-container" class="items-grid"></div>
 
-    <div class="card">
-        <div class="file-upload">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#e94560" stroke-width="2">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                <polyline points="14 2 14 8 20 8"></polyline>
-                <line x1="12" y1="18" x2="12" y2="12"></line>
-                <line x1="9" y1="15" x2="12" y2="12"></line>
-                <line x1="15" y1="15" x2="12" y2="12"></line>
-            </svg>
-            <p>Toque para Selecionar o PDF</p>
-            <input type="file" id="pdf-input" accept="application/pdf">
-        </div>
-        
-        <div class="input-group" style="margin-top: 20px;">
-            <label>PESO TOTAL ABATE (KG)</label>
-            <input type="number" id="total-weight" placeholder="Ex: 148243" oninput="calculateAll()">
-        </div>
-    </div>
-
-    <div id="items-container"></div>
-
-    <button class="btn-reset" onclick="location.reload()">Limpar Tudo</button>
+    <button class="btn-reset" onclick="resetDay()">ZERAR DADOS DO DIA</button>
 
     <script>
-        // --- CONFIGURAÇÃO DAS METAS (BASEADO NO SEU PDF) ---
-        // O app usa esses nomes para buscar no PDF e essas metas para calcular
-        const itemsConfig = [
+        // CONFIGURAÇÃO INICIAL (Baseada no seu PDF)
+        // O usuário pode editar a meta na tela e ela será salva.
+        const defaultItems = [
             { id: 'coxa_sobre', name: 'COXA/SOBRECOXA', meta: 26.500 },
             { id: 'file', name: 'FILE', meta: 26.500 },
             { id: 'coxinha', name: 'COXINHA DA ASA', meta: 4.600 },
@@ -194,209 +134,166 @@
             { id: 'figado', name: 'FIGADO', meta: 1.600 },
             { id: 'moela', name: 'MOELA', meta: 1.100 },
             { id: 'coracao', name: 'CORAÇÃO', meta: 0.480 },
-            { id: 'pes', name: 'PES', meta: 2.850 },
+            { id: 'pes', name: 'PÉS', meta: 2.850 },
             { id: 'cms', name: 'CMS', meta: 15.000 },
             { id: 'sambiquira', name: 'SAMBIQUIRA', meta: 0.800 },
             { id: 'dorso', name: 'DORSO', meta: 0.000 }
         ];
 
-        // Inicializa a tela
-        const container = document.getElementById('items-container');
-        
-        function init() {
+        // Carrega dados salvos ou usa o padrão
+        let itemsData = JSON.parse(localStorage.getItem('rendimentoItems')) || defaultItems;
+        // Adiciona campos de 'boxWeight' e 'realized' se não existirem
+        itemsData = itemsData.map(i => ({
+            ...i, 
+            boxWeight: i.boxWeight || '', 
+            realized: i.realized || '' 
+        }));
+
+        const container = document.getElementById('app-container');
+        const totalWeightInput = document.getElementById('total-weight');
+
+        // Carrega peso total salvo (opcional, bom pra não perder se fechar o app)
+        totalWeightInput.value = localStorage.getItem('totalWeight') || '';
+
+        function render() {
             container.innerHTML = '';
-            itemsConfig.forEach(item => {
+            itemsData.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = 'item-card';
-                div.id = `card-${item.id}`;
+                div.id = `card-${index}`;
+
                 div.innerHTML = `
                     <div class="item-header">
-                        <span class="item-name">${item.name}</span>
-                        <span class="item-meta">Meta: ${item.meta.toFixed(3)}%</span>
+                        <span class="item-title">${item.name}</span>
                     </div>
-                    <div class="grid-values">
-                        <div class="input-group">
-                            <label>REALIZADO (%)</label>
-                            <input type="number" id="real-${item.id}" step="0.001" placeholder="0.000" oninput="calcItem('${item.id}')">
+
+                    <div class="inputs-row">
+                        <div class="small-input-group">
+                            <label>META (%)</label>
+                            <input type="number" class="small-input" value="${item.meta}" 
+                                oninput="updateItem(${index}, 'meta', this.value)">
                         </div>
-                        <div class="input-group">
+                        <div class="small-input-group">
+                            <label style="color:var(--accent);">REALIZADO (%)</label>
+                            <input type="number" class="small-input" style="border-color:var(--accent);" value="${item.realized}" placeholder="0.00"
+                                oninput="updateItem(${index}, 'realized', this.value)">
+                        </div>
+                        <div class="small-input-group">
                             <label>PESO CX (KG)</label>
-                            <input type="number" id="box-${item.id}" placeholder="Ex: 15" oninput="calcItem('${item.id}')">
+                            <input type="number" class="small-input" value="${item.boxWeight}" placeholder="kg"
+                                oninput="updateItem(${index}, 'boxWeight', this.value)">
                         </div>
                     </div>
-                    <div class="result-row">
+
+                    <div class="results-area">
                         <div>
-                            <label>Diferença (%)</label>
-                            <span id="diff-perc-${item.id}" style="font-weight:bold;">0.000%</span>
+                            <div class="res-label">Diferença %</div>
+                            <div id="diff-perc-${index}" class="res-value">0.00%</div>
                         </div>
-                        <div class="result-box">
-                            <div id="diff-kg-${item.id}" class="result-val">0.0 kg</div>
-                            <div id="diff-cx-${item.id}" class="cx-count">0.0 caixas</div>
+                        <div class="result-block">
+                            <div class="res-label">Saldo (Kg)</div>
+                            <div id="diff-kg-${index}" class="res-value">0.0 kg</div>
+                            <div id="diff-box-${index}" class="box-badge">0 caixas</div>
                         </div>
                     </div>
                 `;
                 container.appendChild(div);
             });
+            calculateAll();
         }
 
-        // --- LÓGICA DE CÁLCULO ---
-        function calculateAll() {
-            itemsConfig.forEach(item => calcItem(item.id));
+        function updateItem(index, field, value) {
+            itemsData[index][field] = value;
+            save();
+            calculateAll();
         }
 
-        function calcItem(id) {
-            const totalAbate = parseFloat(document.getElementById('total-weight').value) || 0;
-            const realVal = parseFloat(document.getElementById(`real-${id}`).value) || 0;
-            const boxWeight = parseFloat(document.getElementById(`box-${id}`).value) || 1; // Evita divisão por zero
-            
-            const item = itemsConfig.find(i => i.id === id);
-            
-            // Se não preencheu realizado, não calcula
-            if(realVal === 0) return;
-
-            // Diferença: Realizado - Meta
-            // Se positivo: Sobrou (Lucro/Azul). Se negativo: Faltou (Dívida/Vermelho).
-            const diffPerc = realVal - item.meta;
-            const diffKg = totalAbate * (diffPerc / 100);
-            const diffCx = diffKg / boxWeight;
-
-            // Atualiza UI
-            const card = document.getElementById(`card-${id}`);
-            const diffPercEl = document.getElementById(`diff-perc-${id}`);
-            const diffKgEl = document.getElementById(`diff-kg-${id}`);
-            const diffCxEl = document.getElementById(`diff-cx-${id}`);
-
-            // Formatação
-            diffPercEl.innerText = (diffPerc > 0 ? "+" : "") + diffPerc.toFixed(3) + "%";
-            diffKgEl.innerText = diffKg.toFixed(1) + " kg";
-            diffCxEl.innerText = diffCx.toFixed(1) + " caixas";
-
-            // Cores
-            card.classList.remove('positive', 'negative');
-            diffKgEl.classList.remove('text-red', 'text-blue');
-
-            if(diffPerc < 0) {
-                // Devendo
-                card.classList.add('negative');
-                diffKgEl.classList.add('text-red');
-            } else {
-                // Sobrando
-                card.classList.add('positive');
-                diffKgEl.classList.add('text-blue');
-            }
-        }
-
-        // --- LÓGICA DE LEITURA DO PDF ---
-        document.getElementById('pdf-input').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-
-            document.getElementById('loading').style.display = 'flex';
-
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                
-                let fullText = "";
-                
-                // Varre todas as páginas (geralmente é a pág 1 ou 2)
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    // Concatena o texto na ordem que aparece
-                    const pageText = textContent.items.map(item => item.str).join(" | ");
-                    fullText += pageText + " | ";
-                }
-
-                console.log("Texto Extraído:", fullText); // Para debug se precisar
-                processPDFText(fullText);
-
-            } catch (error) {
-                alert("Erro ao ler PDF: " + error.message);
-            } finally {
-                document.getElementById('loading').style.display = 'none';
-            }
+        totalWeightInput.addEventListener('input', (e) => {
+            localStorage.setItem('totalWeight', e.target.value);
+            calculateAll();
         });
 
-        function processPDFText(text) {
-            // 1. Tentar achar o PESO TOTAL DE ABATE (Kg)
-            // Procura por "QUANTIDADE REALIZADA" perto de "Kg"
-            // O PDF mostra: ... | QUANTIDADE REALIZADA | ... | Kg | ... | 148.243 | ...
-            // Vamos tentar achar números grandes logo após "Kg"
-            
-            // Regex simples para achar sequências numéricas após a palavra "Kg"
-            // Remove pontos de milhar para facilitar
-            const cleanText = text.replace(/\./g, "").replace(/,/g, "."); 
-            
-            // Estratégia: O usuário quer o dia atual. O PDF tem várias colunas.
-            // O "Realizado" geralmente é o último valor preenchido antes do acumulado.
-            // Vamos focar em preencher os ITENS primeiro, pois o Total as vezes varia de lugar.
-            
-            itemsConfig.forEach(item => {
-                // Procura o nome do item
-                const itemIndex = cleanText.indexOf(item.name);
-                if (itemIndex !== -1) {
-                    // Pega um pedaço do texto logo após o nome do item
-                    const snippet = cleanText.substring(itemIndex, itemIndex + 400); // 400 caracteres a frente
-                    
-                    // Procura porcentagens (números seguidos de %)
-                    // Ex no texto limpo: 26.500% | ... | 26.765% | ...
-                    const regexPerc = /(\d+\.\d+)%/g;
-                    let match;
-                    let values = [];
-                    
-                    while ((match = regexPerc.exec(snippet)) !== null) {
-                        values.push(parseFloat(match[1]));
-                    }
+        function calculateAll() {
+            const totalAbate = parseFloat(totalWeightInput.value) || 0;
 
-                    // Lógica para pegar o valor "Realizado":
-                    // O primeiro valor geralmente é a META (ex: 26.500%).
-                    // Os próximos são os realizados dos dias.
-                    // Vamos pegar o ÚLTIMO valor da lista, assumindo que é o dia mais recente.
-                    // Mas cuidado: se tiver acumulado, pode ser o último.
-                    
-                    if (values.length > 1) {
-                        // Se achou meta + realizados, pega o último realizado (penúltimo da lista se tiver acumulado, mas vamos simplificar pegando o último por enquanto)
-                        // No seu PDF, a meta é o primeiro. O realizado do dia 13 é o ultimo da fila diária.
-                        let foundVal = values[values.length - 1]; 
-                        
-                        // Preenche o input
-                        document.getElementById(`real-${item.id}`).value = foundVal;
-                        // Trigger calc
-                        calcItem(item.id);
-                    }
+            itemsData.forEach((item, index) => {
+                const meta = parseFloat(item.meta) || 0;
+                const realized = parseFloat(item.realized); // Pode ser NaN se vazio
+                const boxW = parseFloat(item.boxWeight) || 0;
+
+                const card = document.getElementById(`card-${index}`);
+                const elPerc = document.getElementById(`diff-perc-${index}`);
+                const elKg = document.getElementById(`diff-kg-${index}`);
+                const elBox = document.getElementById(`diff-box-${index}`);
+
+                // Se não tem realizado digitado, reseta visual
+                if (isNaN(realized) || totalAbate === 0) {
+                    elPerc.innerText = '---';
+                    elKg.innerText = '---';
+                    elBox.innerText = '---';
+                    card.className = 'item-card'; // Neutro
+                    return;
+                }
+
+                // CÁLCULOS
+                // Lógica: Realizado - Meta = Diferença
+                // Ex: Meta 26.5, Real 26.0 -> -0.5 (Faltou)
+                const diffPerc = realized - meta;
+                const diffKg = totalAbate * (diffPerc / 100);
+                
+                let diffBoxes = 0;
+                if (boxW > 0) {
+                    diffBoxes = diffKg / boxW;
+                }
+
+                // VISUAL
+                const isPositive = diffPerc >= 0;
+                
+                // Formatação
+                elPerc.innerText = (isPositive ? "+" : "") + diffPerc.toFixed(3) + "%";
+                elKg.innerText = diffKg.toFixed(1) + " kg";
+                
+                // Caixas
+                if (boxW > 0) {
+                    elBox.innerText = diffBoxes.toFixed(1) + " cx";
+                    elBox.style.display = 'inline-block';
+                } else {
+                    elBox.style.display = 'none';
+                }
+
+                // Cores
+                elPerc.className = `res-value ${isPositive ? 'val-green' : 'val-red'}`;
+                elKg.className = `res-value ${isPositive ? 'val-green' : 'val-red'}`;
+                
+                // Borda do Card
+                card.className = `item-card ${isPositive ? 'profit' : 'loss'}`;
+                
+                // Texto auxiliar
+                if(!isPositive) {
+                    elKg.innerText = `Faltou: ${Math.abs(diffKg).toFixed(1)} kg`;
+                } else {
+                    elKg.innerText = `Sobrou: ${diffKg.toFixed(1)} kg`;
                 }
             });
-
-            // Tentar achar o TOTAL DE ABATE (Kg)
-            // Procura "TOTAL GERAL PRODUZIDO" ou "QUANTIDADE REALIZADA"
-            // No PDF: "QUANTIDADE REALIZADA" ... "Kg" ... valores
-            if (cleanText.includes("QUANTIDADE REALIZADA")) {
-                const parts = cleanText.split("QUANTIDADE REALIZADA");
-                const afterHeader = parts[1] || "";
-                // Tenta achar numero grande perto de "Kg"
-                // Geralmente > 10000
-                const regexLargeNum = /(\d{5,8})/g; 
-                let matchAbate;
-                let lastBigNumber = 0;
-                
-                // Pega os números grandes nos primeiros 1000 caracteres após o cabeçalho
-                const searchArea = afterHeader.substring(0, 1000);
-                
-                while ((matchAbate = regexLargeNum.exec(searchArea)) !== null) {
-                    lastBigNumber = parseFloat(matchAbate[1]);
-                }
-                
-                if (lastBigNumber > 0) {
-                     document.getElementById('total-weight').value = lastBigNumber;
-                     calculateAll();
-                }
-            }
-            
-            alert("Dados carregados! Verifique se o 'Peso Total' está correto para o dia desejado.");
         }
 
-        init();
+        function save() {
+            localStorage.setItem('rendimentoItems', JSON.stringify(itemsData));
+        }
+
+        function resetDay() {
+            if(confirm("Deseja limpar os valores 'Realizado' de hoje? As metas e pesos de caixa serão mantidos.")) {
+                itemsData = itemsData.map(i => ({ ...i, realized: '' }));
+                totalWeightInput.value = '';
+                localStorage.setItem('totalWeight', '');
+                save();
+                render();
+            }
+        }
+
+        // Inicia
+        render();
+
     </script>
 </body>
 </html>
